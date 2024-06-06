@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная страница с DataTables</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container text-center content">
+    <h1 class="mb-4">Встроенный контент и таблица DataTables</h1>
+    <div id="embedded-content">
+        <!-- Здесь будет вставлено содержимое с внешней ссылки -->
+    </div>
+    <table id="json-table" class="display">
+        <thead>
+            <tr>
+                <th>Номер</th>
+                <th>ФИО</th>
+                <th>Средний балл</th>
+                <th>ВИ</th>
+                <th>Итоговая оценка</th>
+                <th>Аттестат</th>
+                <th>Приоритет</th>
+                <th>Приоритетные льготы</th>
+                <th>Приоритетная программа</th>
+                <th>Преимущественная льгота</th>
+                <th>Комментарий</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<!-- jQuery и Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- DataTables JS -->
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // URL для загрузки HTML-контента
+        var url = 'https://chetk.info/reyting-abiturientov/spisok-abiturientov.html'; // Замените на нужную ссылку
+
+        // Загрузка HTML-содержимого и вставка его в элемент #embedded-content
+        $.get(url, function(data) {
+            $('#embedded-content').html(data);
+
+            // Парсинг HTML и преобразование в JSON
+            var jsonData = parseHtmlToJson(data);
+
+            // Инициализация таблицы DataTables с загруженными данными JSON
+            $('#json-table').DataTable({
+                data: jsonData,
+                columns: [
+                    { data: 'номер' },
+                    { data: 'фио' },
+                    { data: 'средний_балл' },
+                    { data: 'ви' },
+                    { data: 'итоговая_оценка' },
+                    { data: 'аттестат' },
+                    { data: 'приоритет' },
+                    { data: 'приоритетные_льготы' },
+                    { data: 'приоритетная_программа' },
+                    { data: 'преимущественная_льгота' },
+                    { data: 'комментарий' }
+                ],
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/Russian.json" // Загрузка русского языка для интерфейса DataTables
+                }
+            });
+        }).fail(function() {
+            $('#embedded-content').html('<p>Не удалось загрузить контент. Попробуйте позже.</p>');
+        });
+
+        function parseHtmlToJson(html) {
+            // Создаем временный элемент для парсинга HTML
+            var tempDiv = $('<div></div>').html(html);
+            
+            var data = [];
+
+            // Поиск строк таблицы с классом R6
+            tempDiv.find('tr.R6').each(function() {
+                var cols = $(this).find('td');
+                var record = {
+                    'номер': cols.eq(0).text().trim(),
+                    'фио': cols.eq(1).text().trim(),
+                    'средний_балл': cols.eq(2).text().trim(),
+                    'ви': cols.eq(3).text().trim(),
+                    'итоговая_оценка': cols.eq(4).text().trim(),
+                    'аттестат': cols.eq(5).text().trim(),
+                    'приоритет': cols.eq(6).text().trim(),
+                    'приоритетные_льготы': cols.eq(7).text().trim(),
+                    'приоритетная_программа': cols.eq(8).text().trim(),
+                    'преимущественная_льгота': cols.eq(9).text().trim(),
+                    'комментарий': cols.eq(10).text().trim()
+                };
+                data.push(record);
+            });
+
+            return data;
+        }
+    });
+</script>
+
+</body>
+</html>
